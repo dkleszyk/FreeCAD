@@ -72,6 +72,8 @@ public:
     //return true if this schema uses multiple units for length (ex. Ft/In)
     bool isMultiUnitLength() const override {return true;}
 
+    //return true if this schema uses fractional units for length (ex. 1+1/8In)
+    bool isFractionalUnitLength() const override {return true;}
 };
 
 /** The schema class for Civil Engineering in the imperial unit system

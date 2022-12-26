@@ -157,6 +157,12 @@ bool UnitsApi::isMultiUnitLength()
     return UserPrefSystem->isMultiUnitLength();
 }
 
+//return true if the current user schema uses fractional units for length (ex. 1+1/8In)
+bool UnitsApi::isFractionalUnitLength()
+{
+    return UserPrefSystem->isFractionalUnitLength();
+}
+
 //return true if the current user schema uses multiple units for angles (ex. DMS)
 bool UnitsApi::isMultiUnitAngle()
 {

@@ -95,6 +95,9 @@ public:
     //return true if the current user schema uses multiple units for length (ex. Ft/In)
     static bool isMultiUnitLength();
 
+    //return true if the current user schema uses fractional units for length (ex. 1+1/8In)
+    static bool isFractionalUnitLength();
+
     //return true if the current user schema uses multiple units for angles (ex. DMS)
     static bool isMultiUnitAngle();
 

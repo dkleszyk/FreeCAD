@@ -69,6 +69,9 @@ public:
     //return true if this schema uses multiple units for length (ex. Ft/In)
     virtual bool isMultiUnitLength() const {return false;}
 
+    //return true if this schema uses fractional units for length (ex. 1+1/8In)
+    virtual bool isFractionalUnitLength() const {return false;}
+
     //return true if this schema uses multiple units for angles (ex. DMS)
     virtual bool isMultiUnitAngle() const {return false;}
 
