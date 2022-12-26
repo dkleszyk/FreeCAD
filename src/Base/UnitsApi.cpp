@@ -181,6 +181,11 @@ QString UnitsApi::schemaTranslate(const Base::Quantity& quant, double &factor, Q
     return UserPrefSystem->schemaTranslate(quant,factor,unitString);
 }
 
+QString UnitsApi::toLocale(const Base::Quantity& quant, double factor, const QString& unitString)
+{
+    return UserPrefSystem->toLocale(quant,factor,unitString);
+}
+
 double UnitsApi::toDouble(PyObject *ArgObj, const Base::Unit &u)
 {
     if (PyUnicode_Check(ArgObj)) {

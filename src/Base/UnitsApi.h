@@ -62,6 +62,7 @@ public:
         QString dummy2;
         return UnitsApi::schemaTranslate(quant, dummy1, dummy2);
     }
+    static QString toLocale(const Base::Quantity& quant, double factor, const QString& unitString);
 
     /** Get a number as string for a quantity of a given format.
      * The string is a number in C locale (i.e. the decimal separator is always a dot) and if
