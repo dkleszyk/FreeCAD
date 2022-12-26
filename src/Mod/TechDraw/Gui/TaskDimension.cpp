@@ -106,6 +106,8 @@ TaskDimension::TaskDimension(QGIViewDimension *parent, ViewProviderDimension *di
     connect(ui->leFormatSpecifierUnderTolerance, SIGNAL(textChanged(QString)), this, SLOT(onFormatSpecifierUnderToleranceChanged()));
     ui->cbArbitraryTolerances->setChecked(parent->getDimFeat()->ArbitraryTolerances.getValue());
     connect(ui->cbArbitraryTolerances, SIGNAL(stateChanged(int)), this, SLOT(onArbitraryTolerancesChanged()));
+    ui->cbForceDecimal->setChecked(parent->getDimFeat()->ForceDecimal.getValue());
+    connect(ui->cbForceDecimal, SIGNAL(stateChanged(int)), this, SLOT(onForceDecimalChanged()));
 
     // Display Style
     if (dimensionVP) {
@@ -275,6 +277,12 @@ void TaskDimension::onFormatSpecifierUnderToleranceChanged()
 void TaskDimension::onArbitraryTolerancesChanged()
 {
     m_parent->getDimFeat()->ArbitraryTolerances.setValue(ui->cbArbitraryTolerances->isChecked());
+    recomputeFeature();
+}
+
+void TaskDimension::onForceDecimalChanged()
+{
+    m_parent->getDimFeat()->ForceDecimal.setValue(ui->cbForceDecimal->isChecked());
     recomputeFeature();
 }
 

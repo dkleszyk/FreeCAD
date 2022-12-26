@@ -68,6 +68,7 @@ private Q_SLOTS:
     void onDimUseSelectionClicked();
     void onExtUseDefaultClicked();
     void onExtUseSelectionClicked();
+    void onForceDecimalChanged();
 
 private:
     std::unique_ptr<Ui_TaskDimension> ui;

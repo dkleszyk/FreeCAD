@@ -180,6 +180,16 @@ be used instead of the dimension value</string>
           </property>
          </widget>
         </item>
+        <item row="5" column="0">
+         <widget class="QCheckBox" name="cbForceDecimal">
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, decimals will always be used for formatting,&lt;/p&gt;&lt;p&gt;regardless of the global unit system&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="text">
+           <string>Force Decimal Text</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>

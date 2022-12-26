@@ -147,6 +147,7 @@ public:
     App::PropertyBool               EqualTolerance;
     App::PropertyQuantityConstraint OverTolerance;
     App::PropertyQuantityConstraint UnderTolerance;
+    App::PropertyBool               ForceDecimal;
 
     App::PropertyBool               AngleOverride;
     App::PropertyAngle              LineAngle;

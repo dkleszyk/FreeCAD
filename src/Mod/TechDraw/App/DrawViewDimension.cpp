@@ -109,6 +109,7 @@ DrawViewDimension::DrawViewDimension()
     ADD_PROPERTY_TYPE(FormatSpecUnderTolerance, (getDefaultFormatSpec(true)), "Format", App::Prop_Output, "Dimension undertolerance format");
     ADD_PROPERTY_TYPE(Arbitrary, (false), "Format", App::Prop_Output, "Value overridden by user");
     ADD_PROPERTY_TYPE(ArbitraryTolerances, (false), "Format", App::Prop_Output, "Tolerance values overridden by user");
+    ADD_PROPERTY_TYPE(ForceDecimal, (false), "Format", App::Prop_Output, "Always format as decimal, regardless of global unit system");
 
     Type.setEnums(TypeEnums);                                         //dimension type: length, radius etc
     ADD_PROPERTY(Type, ((long)0));
