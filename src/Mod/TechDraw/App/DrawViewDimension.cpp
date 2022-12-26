@@ -775,9 +775,17 @@ std::string DrawViewDimension::formatValue(qreal value,
         asQuantity.setUnit(Base::Unit::Length);
     }
 
-    QString qUserString = asQuantity.getUserString();  // this handles mm to inch/km/parsec etc
-                                                       // and decimal positions but won't give more than
-                                                       // Global_Decimals precision
+    QString qUserString;
+    if (angularMeasure || !Base::UnitsApi::isFractionalUnitLength() || !ForceDecimal.getValue()) {
+        qUserString = asQuantity.getUserString(); // this handles mm to inch/km/parsec etc
+                                                   // and decimal positions but won't give more than
+                                                   // Global_Decimals precision
+    } else {
+        double factor;
+        QString unitString;
+        QString dummy = asQuantity.getUserString(factor, unitString);
+        qUserString = Base::UnitsApi::toLocale(asQuantity, factor, unitString);
+    }
 
     //units api: get schema to figure out if this is multi-value schema(Imperial1, ImperialBuilding, etc)
     //if it is multi-unit schema, don't even try to use Alt Decimals
