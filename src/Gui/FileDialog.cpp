@@ -77,8 +77,7 @@ bool DialogOptions::dontUseNativeColorDialog()
 FileDialog::FileDialog(QWidget * parent)
   : QFileDialog(parent)
 {
-    connect(this, SIGNAL(filterSelected(const QString&)),
-            this, SLOT(onSelectedFilter(const QString&)));
+    connect(this, &QFileDialog::filterSelected, this, &FileDialog::onSelectedFilter);
 }
 
 FileDialog::~FileDialog()
@@ -675,10 +674,8 @@ FileChooser::FileChooser ( QWidget * parent )
 
     layout->addWidget( lineEdit );
 
-    connect(lineEdit, SIGNAL(textChanged(const QString &)),
-            this, SIGNAL(fileNameChanged(const QString &)));
-
-    connect(lineEdit, SIGNAL(editingFinished()), this, SLOT(editingFinished()));
+    connect(lineEdit, &QLineEdit::textChanged, this, &FileChooser::fileNameChanged);
+    connect(lineEdit, &QLineEdit::editingFinished, this, &FileChooser::editingFinished);
 
     button = new QPushButton(QLatin1String("..."), this);
 
@@ -725,11 +722,11 @@ void FileChooser::editingFinished()
 }
 
 /**
- * Sets the file name \a s.
+ * Sets the file name \a fn.
  */
-void FileChooser::setFileName( const QString& s )
+void FileChooser::setFileName( const QString& fn )
 {
-    lineEdit->setText( s );
+    lineEdit->setText( fn );
 }
 
 /**

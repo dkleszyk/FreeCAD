@@ -60,7 +60,6 @@ class TestUninstallerGUI(unittest.TestCase):
             translate("AddonsInstaller", "Confirm remove"),
             QtWidgets.QDialogButtonBox.Yes,
         )
-        QtCore.QTimer.singleShot(10, dialog_watcher.run)
         answer = self.uninstaller_gui._confirm_uninstallation()
         self.assertTrue(
             dialog_watcher.dialog_found, "Failed to find the expected dialog box"
@@ -75,7 +74,6 @@ class TestUninstallerGUI(unittest.TestCase):
             translate("AddonsInstaller", "Confirm remove"),
             QtWidgets.QDialogButtonBox.Cancel,
         )
-        QtCore.QTimer.singleShot(10, dialog_watcher.run)
         answer = self.uninstaller_gui._confirm_uninstallation()
         self.assertTrue(
             dialog_watcher.dialog_found, "Failed to find the expected dialog box"
@@ -92,7 +90,6 @@ class TestUninstallerGUI(unittest.TestCase):
             translate("AddonsInstaller", "Removing Addon"),
             QtWidgets.QDialogButtonBox.Cancel,
         )
-        QtCore.QTimer.singleShot(10, dialog_watcher.run)
         self.uninstaller_gui._show_progress_dialog()
         # That call isn't modal, so spin our own event loop:
         while self.uninstaller_gui.progress_dialog.isVisible():
@@ -110,8 +107,7 @@ class TestUninstallerGUI(unittest.TestCase):
             translate("AddonsInstaller", "Removing Addon"),
             QtWidgets.QDialogButtonBox.Cancel,
         )
-        QtCore.QTimer.singleShot(10, dialog_watcher.run)
-        QtCore.QTimer.singleShot(20, worker.stop)
+        QtCore.QTimer.singleShot(1000, worker.stop) # If the test fails, this kills the "worker"
         self.uninstaller_gui._confirm_uninstallation = lambda: True
         self.uninstaller_gui._run_uninstaller = worker.work
         self.uninstaller_gui._finalize = lambda: None
@@ -125,13 +121,13 @@ class TestUninstallerGUI(unittest.TestCase):
         self.assertTrue(
             dialog_watcher.button_found, "Failed to find the expected button"
         )
+        worker.stop()
 
     def test_success_dialog(self):
         dialog_watcher = DialogWatcher(
             translate("AddonsInstaller", "Uninstall complete"),
             QtWidgets.QDialogButtonBox.Ok,
         )
-        QtCore.QTimer.singleShot(10, dialog_watcher.run)
         self.uninstaller_gui._succeeded(self.addon_to_remove)
         self.assertTrue(
             dialog_watcher.dialog_found, "Failed to find the expected dialog box"
@@ -145,7 +141,6 @@ class TestUninstallerGUI(unittest.TestCase):
             translate("AddonsInstaller", "Uninstall failed"),
             QtWidgets.QDialogButtonBox.Ok,
         )
-        QtCore.QTimer.singleShot(10, dialog_watcher.run)
         self.uninstaller_gui._failed(
             self.addon_to_remove, "Some failure message\nAnother failure message"
         )

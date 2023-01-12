@@ -503,22 +503,15 @@ TreeWidget::TreeWidget(const char* name, QWidget* parent)
     this->selectTimer = new QTimer(this);
     this->selectTimer->setSingleShot(true);
 
-    connect(this->statusTimer, SIGNAL(timeout()),
-        this, SLOT(onUpdateStatus()));
-    connect(this, SIGNAL(itemEntered(QTreeWidgetItem*, int)),
-        this, SLOT(onItemEntered(QTreeWidgetItem*)));
-    connect(this, SIGNAL(itemCollapsed(QTreeWidgetItem*)),
-        this, SLOT(onItemCollapsed(QTreeWidgetItem*)));
-    connect(this, SIGNAL(itemExpanded(QTreeWidgetItem*)),
-        this, SLOT(onItemExpanded(QTreeWidgetItem*)));
-    connect(this, SIGNAL(itemSelectionChanged()),
-        this, SLOT(onItemSelectionChanged()));
-    connect(this, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
-        this, SLOT(onItemChanged(QTreeWidgetItem*, int)));
-    connect(this->preselectTimer, SIGNAL(timeout()),
-        this, SLOT(onPreSelectTimer()));
-    connect(this->selectTimer, SIGNAL(timeout()),
-        this, SLOT(onSelectTimer()));
+    connect(this->statusTimer, &QTimer::timeout, this, &TreeWidget::onUpdateStatus);
+    connect(this, &QTreeWidget::itemEntered, this, &TreeWidget::onItemEntered);
+    connect(this, &QTreeWidget::itemCollapsed, this, &TreeWidget::onItemCollapsed);
+    connect(this, &QTreeWidget::itemExpanded, this, &TreeWidget::onItemExpanded);
+    connect(this, &QTreeWidget::itemSelectionChanged,
+            this, &TreeWidget::onItemSelectionChanged);
+    connect(this, &QTreeWidget::itemChanged, this, &TreeWidget::onItemChanged);
+    connect(this->preselectTimer, &QTimer::timeout, this, &TreeWidget::onPreSelectTimer);
+    connect(this->selectTimer, &QTimer::timeout, this, &TreeWidget::onSelectTimer);
     preselectTime.start();
 
     setupText();
@@ -1493,7 +1486,11 @@ void TreeWidget::dragMoveEvent(QDragMoveEvent* event)
         return;
 
     auto modifier = QApplication::queryKeyboardModifiers();
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
     QTreeWidgetItem* targetItem = itemAt(event->pos());
+#else
+    QTreeWidgetItem* targetItem = itemAt(event->position().toPoint());
+#endif
     if (!targetItem || targetItem->isSelected()) {
         leaveEvent(nullptr);
         event->ignore();
@@ -1634,7 +1631,11 @@ void TreeWidget::dropEvent(QDropEvent* event)
     //FIXME: This should actually be done inside dropMimeData
 
     bool touched = false;
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
     QTreeWidgetItem* targetItem = itemAt(event->pos());
+#else
+    QTreeWidgetItem* targetItem = itemAt(event->position().toPoint());
+#endif
     // not dropped onto an item
     if (!targetItem)
         return;

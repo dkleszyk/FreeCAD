@@ -45,17 +45,20 @@
 #include "ViewProviderCosmeticExtension.h"
 #include "ViewProviderDimension.h"
 #include "ViewProviderDrawingView.h"
+#include "ViewProviderDrawingViewExtension.h"
 #include "ViewProviderGeomHatch.h"
 #include "ViewProviderHatch.h"
 #include "ViewProviderImage.h"
 #include "ViewProviderLeader.h"
 #include "ViewProviderPage.h"
+#include "ViewProviderPageExtension.h"
 #include "ViewProviderProjGroup.h"
 #include "ViewProviderProjGroupItem.h"
 #include "ViewProviderRichAnno.h"
 #include "ViewProviderSpreadsheet.h"
 #include "ViewProviderSymbol.h"
 #include "ViewProviderTemplate.h"
+#include "ViewProviderTemplateExtension.h"
 #include "ViewProviderTile.h"
 #include "ViewProviderViewClip.h"
 #include "ViewProviderViewPart.h"
@@ -148,6 +151,11 @@ PyMOD_INIT_FUNC(TechDrawGui)
     TechDrawGui::ViewProviderRichAnno::init();
     TechDrawGui::ViewProviderTile::init();
     TechDrawGui::ViewProviderWeld::init();
+
+    TechDrawGui::ViewProviderPageExtension   ::init();
+//    TechDrawGui::ViewProviderPageExtensionPython::init();
+    TechDrawGui::ViewProviderDrawingViewExtension::init();
+    TechDrawGui::ViewProviderTemplateExtension::init();
 
     TechDrawGui::ViewProviderCosmeticExtension::init();
 

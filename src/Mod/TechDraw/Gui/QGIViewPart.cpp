@@ -482,8 +482,7 @@ void QGIViewPart::drawViewPart()
     }
 
     // Draw Edges
-    QColor edgeColor = PreferencesGui::normalQColor();
-
+    QColor edgeColor = PreferencesGui::getAccessibleQColor(PreferencesGui::normalQColor());
     const TechDraw::BaseGeomPtrVector& geoms = viewPart->getEdgeGeometry();
     TechDraw::BaseGeomPtrVector::const_iterator itGeom = geoms.begin();
     QGIEdge* item;
@@ -530,7 +529,8 @@ void QGIViewPart::drawViewPart()
             else {
                 TechDraw::GeomFormat* gf = viewPart->getGeomFormatBySelection(i);
                 if (gf) {
-                    item->setNormalColor(gf->m_format.m_color.asValue<QColor>());
+                    App::Color  color = Preferences::getAccessibleColor(gf->m_format.m_color);
+                    item->setNormalColor(color.asValue<QColor>());
                     item->setWidth(gf->m_format.m_weight * lineScaleFactor);
                     item->setStyle(gf->m_format.m_style);
                     showItem = gf->m_format.m_visible;
@@ -571,8 +571,7 @@ void QGIViewPart::drawViewPart()
                                              ->GetGroup("Preferences")
                                              ->GetGroup("Mod/TechDraw/General");
     double vertexScaleFactor = hGrp->GetFloat("VertexScale", 3.0);
-    QColor vertexColor = PreferencesGui::vertexQColor();
-
+    QColor vertexColor = PreferencesGui::getAccessibleQColor(PreferencesGui::vertexQColor());
     bool showVertices = true;
     bool showCenterMarks = true;
     if (getFrameState()) {//frames are on
@@ -637,7 +636,8 @@ bool QGIViewPart::formatGeomFromCosmetic(std::string cTag, QGIEdge* item)
     auto partFeat(dynamic_cast<TechDraw::DrawViewPart*>(getViewObject()));
     TechDraw::CosmeticEdge* ce = partFeat ? partFeat->getCosmeticEdge(cTag) : nullptr;
     if (ce) {
-        item->setNormalColor(ce->m_format.m_color.asValue<QColor>());
+        App::Color color = Preferences::getAccessibleColor(ce->m_format.m_color);
+        item->setNormalColor(color.asValue<QColor>());
         item->setWidth(ce->m_format.m_weight * lineScaleFactor);
         item->setStyle(ce->m_format.m_style);
         result = ce->m_format.m_visible;
@@ -653,7 +653,8 @@ bool QGIViewPart::formatGeomFromCenterLine(std::string cTag, QGIEdge* item)
     auto partFeat(dynamic_cast<TechDraw::DrawViewPart*>(getViewObject()));
     TechDraw::CenterLine* cl = partFeat ? partFeat->getCenterLine(cTag) : nullptr;
     if (cl) {
-        item->setNormalColor(cl->m_format.m_color.asValue<QColor>());
+        App::Color color = Preferences::getAccessibleColor(cl->m_format.m_color);
+        item->setNormalColor(color.asValue<QColor>());
         item->setWidth(cl->m_format.m_weight * lineScaleFactor);
         item->setStyle(cl->m_format.m_style);
         result = cl->m_format.m_visible;
@@ -800,7 +801,8 @@ void QGIViewPart::drawSectionLine(TechDraw::DrawViewSection* viewSection, bool b
         addToGroup(sectionLine);
         sectionLine->setSymbol(const_cast<char*>(viewSection->SectionSymbol.getValue()));
         sectionLine->setSectionStyle(vp->SectionLineStyle.getValue());
-        sectionLine->setSectionColor(vp->SectionLineColor.getValue().asValue<QColor>());
+        App::Color color = Preferences::getAccessibleColor(vp->SectionLineColor.getValue());
+        sectionLine->setSectionColor(color.asValue<QColor>());
         sectionLine->setPathMode(false);
 
         //find the ends of the section line
@@ -883,7 +885,8 @@ void QGIViewPart::drawComplexSectionLine(TechDraw::DrawViewSection* viewSection,
     addToGroup(sectionLine);
     sectionLine->setSymbol(const_cast<char*>(viewSection->SectionSymbol.getValue()));
     sectionLine->setSectionStyle(vp->SectionLineStyle.getValue());
-    sectionLine->setSectionColor(vp->SectionLineColor.getValue().asValue<QColor>());
+    App::Color color = Preferences::getAccessibleColor(vp->SectionLineColor.getValue());
+    sectionLine->setSectionColor(color.asValue<QColor>());
     sectionLine->setPathMode(true);
     sectionLine->setPath(wirePath);
     sectionLine->setEnds(vStart, vEnd);
@@ -974,18 +977,27 @@ void QGIViewPart::drawHighlight(TechDraw::DrawViewDetail* viewDetail, bool b)
     }
 
     auto vp = static_cast<ViewProviderViewPart*>(getViewProvider(getViewObject()));
-    if (!vp)
+    if (!vp) {
         return;
-
+    }
+    auto vpDetail = static_cast<ViewProviderViewPart*>(getViewProvider(viewDetail));
+    if (!vpDetail) {
+        return;
+    }
     if (b) {
         //        double fontSize = getPrefFontSize();
         double fontSize = Preferences::labelFontSizeMM();
         QGIHighlight* highlight = new QGIHighlight();
-        addToGroup(highlight);
-        highlight->setPos(0.0, 0.0);//sb setPos(center.x, center.y)?
+        scene()->addItem(highlight);
         highlight->setReference(viewDetail->Reference.getValue());
         highlight->setStyle((Qt::PenStyle)vp->HighlightLineStyle.getValue());
-        highlight->setColor(vp->HighlightLineColor.getValue().asValue<QColor>());
+        App::Color color = Preferences::getAccessibleColor(vp->HighlightLineColor.getValue());
+        highlight->setColor(color.asValue<QColor>());
+        highlight->setFeatureName(viewDetail->getNameInDocument());
+        highlight->setInteractive(true);
+
+        addToGroup(highlight);
+        highlight->setPos(0.0, 0.0);//sb setPos(center.x, center.y)?
 
         Base::Vector3d center = viewDetail->AnchorPoint.getValue() * viewPart->getScale();
         double rotationRad = viewPart->Rotation.getValue() * M_PI / 180.0;
@@ -997,14 +1009,29 @@ void QGIViewPart::drawHighlight(TechDraw::DrawViewDetail* viewDetail, bool b)
         highlight->setWidth(Rez::guiX(vp->IsoWidth.getValue()));
         highlight->setFont(getFont(), fontSize);
         highlight->setZValue(ZVALUE::HIGHLIGHT);
+        highlight->setReferenceAngle(vpDetail->HighlightAdjust.getValue());
 
         //handle conversion of apparent X,Y to rotated
         QPointF rotCenter = highlight->mapFromParent(transformOriginPoint());
         highlight->setTransformOriginPoint(rotCenter);
 
-        double rotation = viewPart->Rotation.getValue() + vp->HighlightAdjust.getValue();
+        double rotation = viewPart->Rotation.getValue();
         highlight->setRotation(rotation);
         highlight->draw();
+    }
+}
+
+void QGIViewPart::highlightMoved(QGIHighlight* highlight, QPointF newPos)
+{
+    std::string highlightName = highlight->getFeatureName();
+    App::Document* doc = getViewObject()->getDocument();
+    App::DocumentObject* docObj = doc->getObject(highlightName.c_str());
+    auto detail = dynamic_cast<DrawViewDetail*>(docObj);
+    auto oldAnchor = detail->AnchorPoint.getValue();
+    if (detail) {
+        Base::Vector3d delta = Rez::appX(DrawUtil::toVector3d(newPos)) / getViewObject()->getScale();
+        delta = DrawUtil::invertY(delta);
+        detail->AnchorPoint.setValue(oldAnchor + delta);
     }
 }
 

@@ -149,7 +149,7 @@ class ColorPickerButton : public QFrame
     Q_OBJECT
 
 public:
-    ColorPickerButton(QWidget *parent);
+    explicit ColorPickerButton(QWidget *parent);
 
 Q_SIGNALS:
     void clicked();
@@ -292,12 +292,11 @@ QtColorPicker::QtColorPicker(QWidget *parent,
 
     // Create color grid popup and connect to it.
     popup = new ColorPickerPopup(cols, withColorDialog, this);
-    connect(popup, SIGNAL(selected(const QColor &)),
-        SLOT(setCurrentColor(const QColor &)));
-    connect(popup, SIGNAL(hid()), SLOT(popupClosed()));
+    connect(popup, &ColorPickerPopup::selected, this, &QtColorPicker::setCurrentColor);
+    connect(popup, &ColorPickerPopup::hid, this, &QtColorPicker::popupClosed);
 
     // Connect this push button's pressed() signal.
-    connect(this, SIGNAL(toggled(bool)), SLOT(buttonPressed(bool)));
+    connect(this, &QtColorPicker::toggled, this, &QtColorPicker::buttonPressed);
 }
 
 /*!
@@ -360,8 +359,8 @@ void QtColorPicker::paintEvent(QPaintEvent *e)
 
         QPainter p(&pix);
 
-        int w = pix.width();			// width of cell in pixels
-        int h = pix.height();			// height of cell in pixels
+        int w = pix.width();            // width of cell in pixels
+        int h = pix.height();           // height of cell in pixels
         p.setPen(QPen(Qt::gray));
         p.setBrush(col);
         p.drawRect(2, 2, w - 5, h - 5);
@@ -1025,8 +1024,8 @@ void ColorPickerItem::mousePressEvent(QMouseEvent *)
 void ColorPickerItem::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    int w = width();			// width of cell in pixels
-    int h = height();			// height of cell in pixels
+    int w = width();            // width of cell in pixels
+    int h = height();           // height of cell in pixels
 
     p.setPen( QPen( Qt::gray, 0, Qt::SolidLine ) );
 

@@ -1676,12 +1676,16 @@ _qt_msg_handler_old old_qtmsg_handler = nullptr;
 void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     Q_UNUSED(context);
-#ifdef FC_DEBUG
     switch (type)
     {
     case QtInfoMsg:
     case QtDebugMsg:
+#ifdef FC_DEBUG
         Base::Console().Message("%s\n", msg.toUtf8().constData());
+#else
+        // do not stress user with Qt internals but write to log file if enabled
+        Base::Console().Log("%s\n", msg.toUtf8().constData());
+#endif
         break;
     case QtWarningMsg:
         Base::Console().Warning("%s\n", msg.toUtf8().constData());
@@ -1694,13 +1698,9 @@ void messageHandler(QtMsgType type, const QMessageLogContext &context, const QSt
         abort();                    // deliberately core dump
     }
 #ifdef FC_OS_WIN32
-    if (old_qtmsg_handler)
+    if (old_qtmsg_handler) {
         (*old_qtmsg_handler)(type, context, msg);
-#endif
-#else
-    // do not stress user with Qt internals but write to log file if enabled
-    Q_UNUSED(type);
-    Base::Console().Log("%s\n", msg.toUtf8().constData());
+    }
 #endif
 }
 
@@ -1866,18 +1866,24 @@ void Application::runApplication()
 #ifdef FC_OS_WIN32
         SetProcessDPIAware(); // call before the main event loop
 #endif
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
         QApplication::setAttribute(Qt::AA_DisableHighDpiScaling);
+#endif
     }
     else {
         // Enable automatic scaling based on pixel density of display (added in Qt 5.6)
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
         QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
 #if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
         QGuiApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
 #endif
     }
 
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
     //Enable support for highres images (added in Qt 5.1, but off by default)
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+#endif
 
     // Use software rendering for OpenGL
     ParameterGrp::handle hOpenGL = App::GetApplication().GetParameterGroupByPath("User parameter:BaseApp/Preferences/OpenGL");

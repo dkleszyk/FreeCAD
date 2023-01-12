@@ -640,9 +640,9 @@ class Snapper:
                                             self.lastExtensions[0] = ne
                                     else:
                                         if (not DraftGeomUtils.areColinear(ne,self.lastExtensions[0])) and \
-                                            (not DraftGeomUtils.areColinear(ne,self.lastExtensions[1])):
-                                                self.lastExtensions[1] = self.lastExtensions[0]
-                                                self.lastExtensions[0] = ne
+                                                (not DraftGeomUtils.areColinear(ne,self.lastExtensions[1])):
+                                            self.lastExtensions[1] = self.lastExtensions[0]
+                                            self.lastExtensions[0] = ne
                                     return np,ne
                         elif self.isEnabled('Parallel'):
                             if last:
@@ -1438,7 +1438,7 @@ class Snapper:
             Gui.Snapper.off()
             self.ui.offUi()
             if callback:
-                if len(inspect.getargspec(callback).args) > 1:
+                if len(inspect.getfullargspec(callback).args) > 1:
                     obj = None
                     if self.snapInfo and ("Object" in self.snapInfo) and self.snapInfo["Object"]:
                         obj = App.ActiveDocument.getObject(self.snapInfo["Object"])
@@ -1457,7 +1457,7 @@ class Snapper:
             Gui.Snapper.off()
             self.ui.offUi()
             if callback:
-                if len(inspect.getargspec(callback).args) > 1:
+                if len(inspect.getfullargspec(callback).args) > 1:
                     callback(None, None)
                 else:
                     callback(None)
@@ -1589,9 +1589,9 @@ class Snapper:
 
     def hide(self):
         """Hide the toolbar."""
-        toolbar = self.get_snap_toolbar()
-        if toolbar:
-            toolbar.hide()
+        if hasattr(self, "toolbar") and self.toolbar:
+            self.toolbar.hide()
+            self.toolbar.toggleViewAction().setVisible(False)
 
 
     def setGrid(self):

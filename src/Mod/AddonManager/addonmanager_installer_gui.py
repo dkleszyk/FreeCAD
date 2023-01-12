@@ -87,13 +87,13 @@ class AddonInstallerGUI(QtCore.QObject):
 
         # Dependency check
         deps = MissingDependencies(self.addon_to_install, self.addons)
-
+        
         # Python interpreter version check
         stop_installation = self._check_python_version(deps)
         if stop_installation:
             self.finished.emit()
             return
-
+        
         # Required Python
         if hasattr(deps, "python_requires") and deps.python_requires:
             # Disallowed packages:
@@ -106,7 +106,7 @@ class AddonInstallerGUI(QtCore.QObject):
         # Remove any disallowed packages from the optional list
         if hasattr(deps, "python_optional") and deps.python_optional:
             self._clean_up_optional(deps)
-
+            
         # Missing FreeCAD workbenches
         if hasattr(deps, "wbs") and deps.wbs:
             stop_installation = self._report_missing_workbenches(deps.wbs)
@@ -274,8 +274,9 @@ class AddonInstallerGUI(QtCore.QObject):
                 FreeCAD.Console.PrintWarning(
                     translate(
                         "AddonsInstaller",
-                        "Optional dependency on {} ignored because it is not in the allow-list\n",
+                        "Optional dependency on {} ignored because it is not in the allow-list",
                     ).format(dep)
+                    + "\n"
                 )
         missing.python_optional = good_packages
 
@@ -520,6 +521,7 @@ class MacroInstallerGUI(QtCore.QObject):
         """The provided addon object must have an attribute called "macro", and that attribute must
         itself provide a callable "install" method that takes a single string, the path to the
         installation location."""
+        super().__init__()
         self.addon_to_install = addon
         self.worker_thread = None
         self.installer = MacroInstaller(self.addon_to_install)
