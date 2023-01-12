@@ -74,9 +74,22 @@ std::string DimensionFormatter::formatValue(qreal value,
         asQuantity.setUnit(Base::Unit::Length);
     }
 
-    QString qUserString = asQuantity.getUserString();  // this handles mm to inch/km/parsec etc
-                                                       // and decimal positions but won't give more than
-                                                       // Global_Decimals precision
+    QString qUserString;
+    if (angularMeasure || !Base::UnitsApi::isFractionalUnitLength() || !m_dimension->ForceDecimal.getValue()) {
+        qUserString = asQuantity.getUserString();  // this handles mm to inch/km/parsec etc
+                                                   // and decimal positions but won't give more than
+                                                   // Global_Decimals precision
+    } else {
+        // toLocale is the method used by schemaTranslate to format
+        // decimal output after calculating the scaling factor, so
+        // discard the formatted output from getUserString (which is fractional),
+        // but take the factor and unit string and manually pass them
+        // to toLocale
+        double factor;
+        QString unitString;
+        QString dummy = asQuantity.getUserString(factor, unitString);
+        qUserString = Base::UnitsApi::toLocale(asQuantity, factor, unitString);
+    }
 
     //get formatSpec prefix/suffix/specifier
     QStringList qsl = getPrefixSuffixSpec(qFormatSpec);
