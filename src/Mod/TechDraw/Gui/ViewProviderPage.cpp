@@ -36,7 +36,6 @@
 
 #include <App/Document.h>
 #include <App/DocumentObject.h>
-#include <Base/Console.h>
 #include <Gui/Application.h>
 #include <Gui/BitmapFactory.h>
 #include <Gui/Document.h>
@@ -118,9 +117,6 @@ void ViewProviderPage::attach(App::DocumentObject* pcFeat)
         connectGuiRepaint = feature->signalGuiPaint.connect(bnd);
         m_pageName = feature->getNameInDocument();
         m_graphicsScene->setObjectName(QString::fromLocal8Bit(m_pageName.c_str()));
-    }
-    else {
-        Base::Console().Log("VPP::attach has no Feature!\n");
     }
 }
 
@@ -526,7 +522,6 @@ TechDraw::DrawPage* ViewProviderPage::getDrawPage() const
 {
     //during redo, pcObject can become invalid, but non-zero??
     if (!pcObject) {
-        Base::Console().Log("VPP::getDrawPage - no Page Object!\n");
         return nullptr;
     }
     return dynamic_cast<TechDraw::DrawPage*>(pcObject);

@@ -79,6 +79,7 @@ class AddonInstallerGUI(QtCore.QObject):
             self.worker_thread.quit()
             self.worker_thread.wait(500)
             if self.worker_thread.isRunning():
+                FreeCAD.Console.PrintError("INTERNAL ERROR: Thread did not quit() cleanly, using terminate()\n")
                 self.worker_thread.terminate()
 
     def run(self):
@@ -159,20 +160,11 @@ class AddonInstallerGUI(QtCore.QObject):
             message += "</ul>"
             message += "To ignore this error and install anyway, press OK."
             r = QtWidgets.QMessageBox.critical(
-                None,
+                utils.get_main_am_window(),
                 translate("AddonsInstaller", "Missing Requirement"),
                 message,
                 QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel,
             )
-            FreeCAD.Console.PrintMessage(
-                translate(
-                    "AddonsInstaller",
-                    "The following Python packages are allowed to be automatically installed",
-                )
-                + ":\n"
-            )
-            for package in self.installer.allowed_packages:
-                FreeCAD.Console.PrintMessage(f"  * {package}\n")
 
             if r == QtWidgets.QMessageBox.Ok:
                 # Force the installation to proceed
@@ -205,7 +197,7 @@ class AddonInstallerGUI(QtCore.QObject):
             message += "</ul>"
             message += translate("AddonsInstaller", "Press OK to install anyway.")
         r = QtWidgets.QMessageBox.critical(
-            None,
+            utils.get_main_am_window(),
             translate("AddonsInstaller", "Missing Requirement"),
             message,
             QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel,
@@ -249,7 +241,7 @@ class AddonInstallerGUI(QtCore.QObject):
         if sys.version_info.minor < minor_required:
             # pylint: disable=line-too-long
             QtWidgets.QMessageBox.critical(
-                None,
+                utils.get_main_am_window(),
                 translate("AddonsInstaller", "Incompatible Python version"),
                 translate(
                     "AddonsInstaller",
@@ -326,6 +318,7 @@ class AddonInstallerGUI(QtCore.QObject):
             translate("AddonsInstaller", "Installing dependencies"),
             translate("AddonsInstaller", "Installing dependencies") + "...",
             QtWidgets.QMessageBox.Cancel,
+            parent=utils.get_main_am_window()
         )
         self.dependency_installation_dialog.rejected.connect(
             self._cancel_dependency_installation
@@ -334,9 +327,11 @@ class AddonInstallerGUI(QtCore.QObject):
         self.dependency_worker_thread.start()
 
     def _cleanup_dependency_worker(self) -> None:
+        return
         self.dependency_worker_thread.quit()
         self.dependency_worker_thread.wait(500)
         if self.dependency_worker_thread.isRunning():
+            FreeCAD.Console.PrintError("INTERNAL ERROR: Thread did not quit() cleanly, using terminate()\n")
             self.dependency_worker_thread.terminate()
 
     def _report_no_python_exe(self) -> None:
@@ -345,7 +340,7 @@ class AddonInstallerGUI(QtCore.QObject):
             self.dependency_installation_dialog.hide()
         # pylint: disable=line-too-long
         result = QtWidgets.QMessageBox.critical(
-            None,
+            utils.get_main_am_window(),
             translate("AddonsInstaller", "Cannot execute Python"),
             translate(
                 "AddonsInstaller",
@@ -369,7 +364,7 @@ class AddonInstallerGUI(QtCore.QObject):
             self.dependency_installation_dialog.hide()
         # pylint: disable=line-too-long
         result = QtWidgets.QMessageBox.critical(
-            None,
+            utils.get_main_am_window(),
             translate("AddonsInstaller", "Cannot execute pip"),
             translate(
                 "AddonsInstaller",
@@ -397,7 +392,7 @@ class AddonInstallerGUI(QtCore.QObject):
             )
         FreeCAD.Console.PrintError(details + "\n")
         result = QtWidgets.QMessageBox.critical(
-            None,
+            utils.get_main_am_window(),
             translate("AddonsInstaller", "Package installation failed"),
             short_message
             + "\n\n"
@@ -440,7 +435,6 @@ class AddonInstallerGUI(QtCore.QObject):
         self.installer.moveToThread(self.worker_thread)
         self.installer.finished.connect(self.worker_thread.quit)
         self.worker_thread.started.connect(self.installer.run)
-        self.worker_thread.start()  # Returns immediately
 
         self.installing_dialog = QtWidgets.QMessageBox(
             QtWidgets.QMessageBox.NoIcon,
@@ -449,10 +443,12 @@ class AddonInstallerGUI(QtCore.QObject):
                 self.addon_to_install.display_name
             ),
             QtWidgets.QMessageBox.Cancel,
+            parent=utils.get_main_am_window()
         )
         self.installing_dialog.rejected.connect(self._cancel_addon_installation)
         self.installer.finished.connect(self.installing_dialog.hide)
         self.installing_dialog.show()
+        self.worker_thread.start()  # Returns immediately
 
     def _cancel_addon_installation(self):
         dlg = QtWidgets.QMessageBox(
@@ -462,6 +458,7 @@ class AddonInstallerGUI(QtCore.QObject):
                 self.addon_to_install.display_name
             ),
             QtWidgets.QMessageBox.NoButton,
+            parent=utils.get_main_am_window()
         )
         dlg.show()
         if self.worker_thread.isRunning():
@@ -483,7 +480,7 @@ class AddonInstallerGUI(QtCore.QObject):
     def _installation_succeeded(self):
         """Called if the installation was successful."""
         QtWidgets.QMessageBox.information(
-            None,
+            utils.get_main_am_window(),
             translate("AddonsInstaller", "Success"),
             translate("AddonsInstaller", "{} was installed successfully").format(
                 self.addon_to_install.name
@@ -496,7 +493,7 @@ class AddonInstallerGUI(QtCore.QObject):
     def _installation_failed(self, addon, message):
         """Called if the installation failed."""
         QtWidgets.QMessageBox.critical(
-            None,
+            utils.get_main_am_window(),
             translate("AddonsInstaller", "Installation Failed"),
             translate("AddonsInstaller", "Failed to install {}").format(addon.name)
             + "\n"
@@ -532,6 +529,14 @@ class MacroInstallerGUI(QtCore.QObject):
             "User parameter:BaseApp/Workbench/Global/Toolbar"
         )
         self.macro_dir = FreeCAD.getUserMacroDir(True)
+    
+    def __del__(self):
+        if self.worker_thread and hasattr(self.worker_thread, "quit"):
+            self.worker_thread.quit()
+            self.worker_thread.wait(500)
+            if self.worker_thread.isRunning():
+                FreeCAD.Console.PrintError("INTERNAL ERROR: Thread did not quit() cleanly, using terminate()\n")
+                self.worker_thread.terminate()
 
     def run(self):
         """Perform the installation, including any necessary user interaction via modal dialog

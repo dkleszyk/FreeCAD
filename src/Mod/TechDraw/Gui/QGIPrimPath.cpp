@@ -31,7 +31,6 @@
 #endif
 
 #include <App/Application.h>
-#include <Base/Console.h>
 
 #include "QGIPrimPath.h"
 #include "PreferencesGui.h"
@@ -286,7 +285,6 @@ void QGIPrimPath::mousePressEvent(QGraphicsSceneMouseEvent * event)
         } else {
 //            qparent->mousePressEvent(event);  //protected!
             QGraphicsPathItem::mousePressEvent(event);
-            Base::Console().Log("QGIPP::mousePressEvent - no QGIView parent\n");
         }
     } else {
 //        Base::Console().Message("QGIPP::mousePressEvent - passing event to ancestor\n");
