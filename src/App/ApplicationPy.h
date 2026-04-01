@@ -21,8 +21,7 @@
  *                                                                         *
  **************************************************************************/
 
-#ifndef APP_APPLICATIONPY_H
-#define APP_APPLICATIONPY_H
+#pragma once
 
 #include <Base/PyObjectBase.h>
 
@@ -48,6 +47,7 @@ public:
     static PyObject* sChangeImportModule     (PyObject *self, PyObject *args);
     static PyObject* sGetImportType          (PyObject *self, PyObject *args);
     static PyObject* sAddExportType          (PyObject *self, PyObject *args);
+    static PyObject* sAddTranslatableExportType (PyObject *self, PyObject *args);
     static PyObject* sChangeExportModule     (PyObject *self, PyObject *args);
     static PyObject* sGetExportType          (PyObject *self, PyObject *args);
     static PyObject* sGetResourcePath        (PyObject *self, PyObject *args);
@@ -90,5 +90,3 @@ public:
 };
 
 }
-
-#endif  // APP_APPLICATIONPY_H

@@ -47,6 +47,7 @@ wall = Arch.makeWall(length=5000, width=200, height=3000)  # mm units
 wall.recompute()
 ```
 """
+
 __title__ = "FreeCAD Arch API"
 __author__ = "Yorik van Havre"
 __url__ = "https://www.freecad.org"
@@ -72,7 +73,6 @@ from ArchSql import *
 # TODO: migrate this one
 # Currently makeStructure, makeStructuralSystem need migration
 from ArchStructure import *
-
 
 # make functions
 
@@ -1739,6 +1739,7 @@ def makeWall(
     wall.Align = (
         align if align else ["Center", "Left", "Right"][params.get_param_arch("WallAlignment")]
     )
+    wall.Offset = offset if offset else params.get_param_arch("WallOffset")
 
     if wall.Base and FreeCAD.GuiUp:
         if Draft.getType(wall.Base) != "Space":
@@ -2136,16 +2137,17 @@ def makeWindow(
                         part_offset,
                     ]
             else:
-                # Bind properties from base obj if they exist
+                # Bind properties from base obj if they exist and have a value
                 for prop in ["Height", "Width", "Subvolume", "Tag", "Description", "Material"]:
                     for baseobj_prop in baseobj.PropertiesList:
-                        if (baseobj_prop == prop) or baseobj_prop.endswith(f"_{prop}"):
+                        if (baseobj_prop == prop or baseobj_prop.endswith(f"_{prop}")) and getattr(
+                            baseobj, baseobj_prop
+                        ):
                             window.setExpression(prop, f"{baseobj.Name}.{baseobj_prop}")
 
     if window.Base and FreeCAD.GuiUp:
         from ArchWindow import recolorize
 
-        window.Base.ViewObject.DisplayMode = "Wireframe"
         window.Base.ViewObject.hide()
         todo.ToDo.delay(recolorize, [window.Document.Name, window.Name])
 

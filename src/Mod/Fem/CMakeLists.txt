@@ -192,7 +192,7 @@ SET(FemObjects_SRCS
     femobjects/constraint_centrif.py
     femobjects/constraint_currentdensity.py
     femobjects/constraint_electricchargedensity.py
-    femobjects/constraint_electrostaticpotential.py
+    femobjects/constraint_electromagnetic.py
     femobjects/constraint_flowvelocity.py
     femobjects/constraint_initialflowvelocity.py
     femobjects/constraint_initialpressure.py
@@ -254,8 +254,6 @@ SET(FemSolver_SRCS
 SET(FemSolverCalculix_SRCS
     femsolver/calculix/__init__.py
     femsolver/calculix/calculixtools.py
-    femsolver/calculix/solver.py
-    femsolver/calculix/tasks.py
     femsolver/calculix/write_constraint_bodyheatsource.py
     femsolver/calculix/write_constraint_centrif.py
     femsolver/calculix/write_constraint_contact.py
@@ -616,7 +614,7 @@ SET(FemGuiTaskPanels_SRCS
     femtaskpanels/task_constraint_centrif.py
     femtaskpanels/task_constraint_currentdensity.py
     femtaskpanels/task_constraint_electricchargedensity.py
-    femtaskpanels/task_constraint_electrostaticpotential.py
+    femtaskpanels/task_constraint_electromagnetic.py
     femtaskpanels/task_constraint_flowvelocity.py
     femtaskpanels/task_constraint_initialflowvelocity.py
     femtaskpanels/task_constraint_initialpressure.py
@@ -684,7 +682,7 @@ SET(FemGuiViewProvider_SRCS
     femviewprovider/view_constraint_centrif.py
     femviewprovider/view_constraint_currentdensity.py
     femviewprovider/view_constraint_electricchargedensity.py
-    femviewprovider/view_constraint_electrostaticpotential.py
+    femviewprovider/view_constraint_electromagnetic.py
     femviewprovider/view_constraint_flowvelocity.py
     femviewprovider/view_constraint_initialflowvelocity.py
     femviewprovider/view_constraint_initialpressure.py
