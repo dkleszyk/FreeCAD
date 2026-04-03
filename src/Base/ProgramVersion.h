@@ -56,6 +56,7 @@ inline Version getVersion(std::string_view str)
         Version version;
     };
     static const std::initializer_list<VersionItem> items = {
+        {.name="pre-0.14", .version=Version::v0_1x},
         {.name="0.16", .version=Version::v0_16},
         {.name="0.17", .version=Version::v0_17},
         {.name="0.18", .version=Version::v0_18},
