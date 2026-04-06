@@ -79,6 +79,7 @@
 #include <Base/Converter.h>
 #include <Base/FileInfo.h>
 #include <Base/Parameter.h>
+#include <Base/ProgramVersion.h>
 #include <Base/Tools.h>
 
 #include <Mod/Part/App/PartFeature.h>
@@ -1251,20 +1252,24 @@ void DrawViewSection::setupObject()
 
 void DrawViewSection::Restore(Base::XMLReader &reader)
 {
-    m_sawSectionLineStretch = false;
-    m_sawIgnoreSectionLineFudgeFactor = false;
-
     DrawViewPart::Restore(reader);
 
-    if (!m_sawSectionLineStretch) {
-        // default value is 1.5 for new instances, but restored instances
-        // need to have default value of 1.0
+    if (Base::getVersion(reader.ProgramVersion) < Base::Version::v0_22) {
+        // SectionLineStretch was added in v0.22
+        //
+        // Versions older than that will not have property serialized
+        // in Document.xml and so we need to overwrite new default value (1.5)
+        // with old default value (1.0)
         SectionLineStretch.setValue(1.0);
     }
 
-    if (!m_sawIgnoreSectionLineFudgeFactor) {
-        // default value is 'true' for new instances, but restored instances
-        // need to have default value of 'false'
+    // TODO: confirm version added
+    if (Base::getVersion(reader.ProgramVersion) < Base::Version::v1_2) {
+        // IgnoreSectionLineFudgeFactor was added in v1.2
+        //
+        // Versions older than that will not have property serialized
+        // in Document.xml and so we need to overwrite new default value (true)
+        // with old default value (false)
         IgnoreSectionLineFudgeFactor.setValue(false);
     }
 }
@@ -1294,14 +1299,6 @@ void DrawViewSection::handleChangedPropertyType(Base::XMLReader &reader, const c
             Direction.setValue(tmpValue);
         }
         return;
-    }
-
-    if (prop == &SectionLineStretch) {
-        m_sawSectionLineStretch = true;
-    }
-
-    if (prop == &IgnoreSectionLineFudgeFactor) {
-        m_sawIgnoreSectionLineFudgeFactor = true;
     }
 
     DrawViewPart::handleChangedPropertyType(reader, TypeName, prop);
