@@ -216,6 +216,7 @@ protected:
     double m_shapeSize;
 
     static App::PropertyFloatConstraint::Constraints stretchRange;
+
 };
 
 using DrawViewSectionPython = App::FeaturePythonT<DrawViewSection>;
