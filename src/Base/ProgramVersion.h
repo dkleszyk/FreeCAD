@@ -56,6 +56,9 @@ inline Version getVersion(std::string_view str)
         Version version;
     };
     static const std::initializer_list<VersionItem> items = {
+        // "pre-0.14" is the default version string used by the document reader
+        // if the ProgramVersion attribute is missing
+        {.name="pre-0.14", .version=Version::v0_1x},
         {.name="0.16", .version=Version::v0_16},
         {.name="0.17", .version=Version::v0_17},
         {.name="0.18", .version=Version::v0_18},
@@ -69,12 +72,12 @@ inline Version getVersion(std::string_view str)
     };
     // clang-format on
     auto it = std::ranges::find_if(items, [str](const auto& item) {
-        return str.starts_with(item.name);
+        return str.compare(0, item.name.size(), item.name) == 0;
     });
     if (it != items.end()) {
         return it->version;
     }
-    if (str.starts_with("0") || str.starts_with("pre-0")) {
+    if (!str.empty() && str[0] == '0') {
         return Version::v0_1x;
     }
     return Version::v1_x;
