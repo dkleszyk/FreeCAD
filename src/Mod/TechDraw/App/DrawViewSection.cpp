@@ -250,18 +250,10 @@ DrawViewSection::DrawViewSection()
     // In QGIViewPart::drawSectionLine a fudge factor was previously unconditionally
     // applied to the length of section lines. When SectionLineStretch was
     // initially added, this fudge factor was still applied. Now we do not apply
-    // the fudge factor by default.
-    //
-    // But we need a way to keep the legacy behavior for section lines that were created
-    // before SectionLineStretch was added, or section lines that were created
-    // after SectionLineStretch was added but before we started ignoring the fudge factor
-    // (because the effective SectionLineStretch with the fudge factor is longer than
-    // the default setting).
-    //
-    // This hidden property is 'true' by default for all newly created section views,
-    // but when Restore'ing saved properties we will check whether the property was
-    // seen. If not (i.e. it is a section view created before the change) we set this
-    // property to 'false' so the legacy behavior will be used
+    // the fudge factor by default, but we need a way to keep the legacy behavior for
+    // section lines that were created before SectionLineStretch was added,
+    // or section lines that were created after SectionLineStretch was added but before
+    // we started ignoring the fudge factor
     ADD_PROPERTY_TYPE(IgnoreSectionLineFudgeFactor,
                       (true),
                       agroup,
@@ -1263,7 +1255,6 @@ void DrawViewSection::Restore(Base::XMLReader &reader)
         SectionLineStretch.setValue(1.0);
     }
 
-    // TODO: confirm version added
     if (Base::getVersion(reader.ProgramVersion) < Base::Version::v1_2) {
         // IgnoreSectionLineFudgeFactor was added in v1.2
         //

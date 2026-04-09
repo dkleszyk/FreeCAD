@@ -107,7 +107,7 @@ public:
     App::PropertyBool UsePreviousCut;   // new v022
 
     App::PropertyFloatConstraint SectionLineStretch;  // new v022
-    App::PropertyBool IgnoreSectionLineFudgeFactor;  // new v120 // TODO: confirm version added
+    App::PropertyBool IgnoreSectionLineFudgeFactor;  // new v120
 //NOLINTEND
 
     bool isReallyInBox(const Base::Vector3d& vec, const Base::BoundBox3d& bb) const;
