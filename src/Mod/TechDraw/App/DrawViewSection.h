@@ -121,7 +121,6 @@ public:
     }
     void unsetupObject() override;
     short mustExecute() const override;
-    void Restore(Base::XMLReader &reader) override;
     void handleChangedPropertyType(
         Base::XMLReader &reader, const char * TypeName, App::Property * prop) override;
 

@@ -79,7 +79,6 @@
 #include <Base/Converter.h>
 #include <Base/FileInfo.h>
 #include <Base/Parameter.h>
-#include <Base/ProgramVersion.h>
 #include <Base/Tools.h>
 
 #include <Mod/Part/App/PartFeature.h>
@@ -242,20 +241,15 @@ DrawViewSection::DrawViewSection()
                       "Rotation of hatch pattern in degrees anti-clockwise");
     ADD_PROPERTY_TYPE(HatchOffset, (0.0, 0.0, 0.0), fgroup, App::Prop_None, "Hatch pattern offset");
 
-    // Default value was 1.0 before IgnoreSectionLineFudgeFactor was added
-    ADD_PROPERTY_TYPE(SectionLineStretch, (1.5), agroup, App::Prop_None,
+    ADD_PROPERTY_TYPE(SectionLineStretch, (1.0), agroup, App::Prop_None,
                       "Adjusts the length of the section line.  1.0 is normal length.  1.1 would be 10% longer, 0.9 would be 10% shorter.");
     SectionLineStretch.setConstraints(&stretchRange);
 
     // In QGIViewPart::drawSectionLine a fudge factor was previously unconditionally
-    // applied to the length of section lines. When SectionLineStretch was
-    // initially added, this fudge factor was still applied. Now we do not apply
-    // the fudge factor by default, but we need a way to keep the legacy behavior for
-    // section lines that were created before SectionLineStretch was added,
-    // or section lines that were created after SectionLineStretch was added but before
-    // we started ignoring the fudge factor
+    // applied to the length of section lines. Starting in v120 we allow disabling
+    // this fudge factor for better control of the section line length.
     ADD_PROPERTY_TYPE(IgnoreSectionLineFudgeFactor,
-                      (true),
+                      (false),
                       agroup,
                       App::Prop_None,
                       "Ignore the legacy 'fudge factor' when rendering the section line.");
@@ -273,10 +267,6 @@ DrawViewSection::DrawViewSection()
     // SectionNormal is used instead to Direction
     Direction.setStatus(App::Property::ReadOnly, true);
     Direction.setValue(SectionNormal.getValue());
-
-    // Do not allow direct modification of flag for section line fudge factor
-    IgnoreSectionLineFudgeFactor.setStatus(App::Property::ReadOnly, true);
-    IgnoreSectionLineFudgeFactor.setStatus(App::Property::Hidden, true);
 }
 
 DrawViewSection::~DrawViewSection()
@@ -365,7 +355,7 @@ void DrawViewSection::onChanged(const App::Property* prop)
         }
     }
 
-    if (prop == &SectionLineStretch) {
+    if (prop == &SectionLineStretch || prop == &IgnoreSectionLineFudgeFactor) {
         BaseView.getValue()->touch();
     }
 
@@ -1239,29 +1229,6 @@ void DrawViewSection::setupObject()
     replacePatIncluded(FileGeomPattern.getValue());
 
     DrawViewPart::setupObject();
-}
-
-void DrawViewSection::Restore(Base::XMLReader &reader)
-{
-    DrawViewPart::Restore(reader);
-
-    if (Base::getVersion(reader.ProgramVersion) < Base::Version::v0_22) {
-        // SectionLineStretch was added in v0.22
-        //
-        // Versions older than that will not have property serialized
-        // in Document.xml and so we need to overwrite new default value (1.5)
-        // with old default value (1.0)
-        SectionLineStretch.setValue(1.0);
-    }
-
-    if (Base::getVersion(reader.ProgramVersion) < Base::Version::v1_2) {
-        // IgnoreSectionLineFudgeFactor was added in v1.2
-        //
-        // Versions older than that will not have property serialized
-        // in Document.xml and so we need to overwrite new default value (true)
-        // with old default value (false)
-        IgnoreSectionLineFudgeFactor.setValue(false);
-    }
 }
 
 void DrawViewSection::handleChangedPropertyType(Base::XMLReader &reader, const char * TypeName, App::Property * prop)
