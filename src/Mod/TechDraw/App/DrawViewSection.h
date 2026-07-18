@@ -215,6 +215,7 @@ protected:
     TopoDS_Shape m_cuttingTool;
     double m_shapeSize;
 
+    double preferredSectionLineStretch();
     static App::PropertyFloatConstraint::Constraints stretchRange;
 
 };

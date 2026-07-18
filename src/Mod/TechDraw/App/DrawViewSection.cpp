@@ -957,6 +957,30 @@ std::vector<TechDraw::FacePtr> DrawViewSection::makeTDSectionFaces(const TopoDS_
     return tdSectionFaces;
 }
 
+double DrawViewSection::preferredSectionLineStretch()
+{
+    //based on original calculations from QGIViewPart
+    //
+    //  double scale = viewPart->getScale();
+    //  std::pair<Base::Vector3d, Base::Vector3d> sLineEnds = viewSection->sectionLineEnds();
+    //  Base::Vector3d l1 = Rez::guiX(sLineEnds.first) * scale;
+    //  Base::Vector3d l2 = Rez::guiX(sLineEnds.second) * scale;
+    //
+    //   [...]
+    //
+    //  //(legacy behavior) make the section line a little longer
+    //  double fudge = 2.0 * Preferences::dimFontSizeMM();
+    //  Base::Vector3d lineDir = l2 - l1;
+    //  lineDir.Normalize();
+    //  sectionLine->setEnds(l1 - lineDir * Rez::guiX(fudge), l2 + lineDir * Rez::guiX(fudge));
+    std::pair<Base::Vector3d, Base::Vector3d> lineEnds = sectionLineEnds();
+    Base::Vector3d line = lineEnds.second - lineEnds.first;
+    double baseLength = line.Length() * getBaseDVP()->getScale();
+    double fudge = 2.0 * Preferences::dimFontSizeMM();
+
+    return 1.0 + stretchStep * std::round((2.0 * fudge) / (baseLength * stretchStep));
+}
+
 // calculate the ends of the section line in BaseView's coords
 std::pair<Base::Vector3d, Base::Vector3d> DrawViewSection::sectionLineEnds()
 {
