@@ -751,15 +751,7 @@ void QGIViewPart::drawSectionLine(TechDraw::DrawViewSection* viewSection, bool b
         Base::Color color = Preferences::getAccessibleColor(vp->SectionLineColor.getValue());
         sectionLine->setSectionColor(color.asValue<QColor>());
         sectionLine->setPathMode(false);
-
-        //(legacy behavior) make the section line a little longer
-        double fudge = 0.0;
-        if (!viewSection->IgnoreSectionLineFudgeFactor.getValue()) {
-            fudge = 2.0 * Preferences::dimFontSizeMM();
-        }
-        Base::Vector3d lineDir = l2 - l1;
-        lineDir.Normalize();
-        sectionLine->setEnds(l1 - lineDir * Rez::guiX(fudge), l2 + lineDir * Rez::guiX(fudge));
+        sectionLine->setEnds(l1, l2);
 
         //which way do the arrows point?
         Base::Vector3d arrowDir = viewSection->SectionNormal.getValue();
@@ -770,9 +762,7 @@ void QGIViewPart::drawSectionLine(TechDraw::DrawViewSection* viewSection, bool b
             ChangePointVector points = viewSection->getChangePointsFromSectionLine();
             //extend the changePoint locations to match the fudged section line ends
             QPointF location0 = points.front().getLocation() * scale;
-            location0 = location0 - DU::toQPointF(lineDir) * fudge;
             QPointF location1 = points.back().getLocation() * scale;
-            location1 = location1 + DU::toQPointF(lineDir) * fudge;
             //change points have Rez::guiX applied in sectionLine
             points.front().setLocation(location0);
             points.back().setLocation(location1);
