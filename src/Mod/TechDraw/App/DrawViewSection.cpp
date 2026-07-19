@@ -1261,7 +1261,7 @@ void DrawViewSection::Restore(Base::XMLReader &reader)
         if (Base::getVersion(reader.ProgramVersion) >= Base::Version::v0_22) {
             preferredStretch += SectionLineStretch.getValue() - 1.0;
         }
-        SectionLineStretch.setValue(preferredSectionLineStretch());
+        SectionLineStretch.setValue(preferredStretch);
     }
 }
 
